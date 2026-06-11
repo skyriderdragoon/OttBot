@@ -24,6 +24,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 ADMIN_GROUP_ID = os.getenv("ADMIN_GROUP_ID")
 MAIN_GROUP_ID = os.getenv("MAIN_GROUP_ID")
 WAITING_ROOM_GROUP_ID = os.getenv("WAITING_ROOM_GROUP_ID")
+NOTIFICATIONS_CHANNEL_ID = os.getenv("NOTIFICATION_CHANNEL_ID")
 ICAL_URL = os.getenv("ICAL_URL")
 LOCAL_TZ = 'Europe/London'
 
@@ -160,6 +161,32 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await respond(update, context, f"Hewwo! I'm Catbot! These are the things I can do:\n{command_docs}", protect_content=True)
 COMMANDS.append(cmd_start)
 
+async def cmd_notify(update:Update, context:ContextTypes.DEFAULT_TYPE) -> None:
+    """/notify: send a message to the CambFurs Notifications channel"""
+    admin_set = await get_admin_set(context.bot)
+    if not update.message.chat.type=="private" or update.message.chat.id==ADMIN_GROUP_ID:
+        return
+    if update.message.from_user.id not in admin_set:
+        return
+    if update.message.reply_to_message is None:
+        await respond_error(update,context,"Please respond to the message you wish to send")
+        return
+
+    text = update.message.reply_to_message.text
+    try:
+        message = await context.bot.send_message(chat_id=NOTIFICATIONS_CHANNEL_ID, text=sanitize(text))
+    except Exception as e:
+        await respond_error(update,context,f"Error in sending notification due to: {e}")
+        return
+    try:
+        forward = await context.bot.forwardMessage(chat_id=MAIN_GROUP_ID, from_chat_id=NOTIFICATIONS_CHANNEL_ID, message_id=message.id)
+        await respond_success(update, context, f"Forwarded! id:{forward.id}")
+    except Exception as e:
+        await respond_error(update, context, f"Error forwarding message due to: {e}")
+        return
+COMMANDS.append(cmd_notify)
+
+
 async def cmd_meet_dates(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """/meet_dates: list upcoming meet dates"""
     if not(update.message.chat.type=="private" or \
@@ -276,6 +303,7 @@ app = Application.builder().token(BOT_TOKEN).post_init(initialize).post_stop(fin
 if __name__ == "__main__":
     app.add_handler(CommandHandler("start", cmd_start))
     app.add_handler(CommandHandler("say",   cmd_say))
+    app.add_handler(CommandHandler("notify", cmd_notify))
     app.add_handler(CommandHandler("approve", cmd_approve))
     app.add_handler(CommandHandler("meet_dates", cmd_meet_dates))
     app.add_handler(ChatMemberHandler(chat_member_updated, ChatMemberHandler.CHAT_MEMBER))
