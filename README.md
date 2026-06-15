@@ -7,14 +7,20 @@ pip install -e .
 ```
 
 ### Permissions
-CatBot expects to be in three groups:
+CatBot expects to be in 5 groups:
 1) a **main group** where CatBot has these **admin** permissions:
     * Add Users
     * Pin Messages
+    * Send Messages
 2) an **admin group** where CatBot has these **user** permissions:
     * Send Messages
 3) a **waiting room group** where CatBot has these **admin** permissions:
     * Ban Users
+4) a **notifications channel** where it has these permissions
+    * Pin Messages
+    * Send Messages
+    * Delete Messages
+
 
 Catbot expects [Privacy Mode](https://core.telegram.org/bots/features#privacy-mode) to be turned off.
 That way it can read messages you give it in the admin group and waiting room group without being admin.
