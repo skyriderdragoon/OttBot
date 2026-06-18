@@ -20,6 +20,9 @@ CatBot expects to be in 5 groups:
     * Pin Messages
     * Send Messages
     * Delete Messages
+5) a **waiting room topics group** where it has these permissions
+    * Send Messages
+    * Create new topics
 
 
 Catbot expects [Privacy Mode](https://core.telegram.org/bots/features#privacy-mode) to be turned off.
@@ -32,9 +35,19 @@ BOT_TOKEN = "<YOUR TELEGRAM BOT TOKEN>"
 MAIN_GROUP_ID = -1234567890
 ADMIN_GROUP_ID = -1234567890
 WAITING_ROOM_GROUP_ID = -1234567890
+WAITING_ROOM_TOPIC_ID = -1234567890
 ICAL_URL="<CURRENT MEET DATES ICAL>"
 ```
 For security reasons, this file must never be checked in.
+
+### Roles
+The bot's role manager handles the user access control and should be implmented using these roles or their inverse values (~)
+* roles.admins
+* roles["sfw_member"]
+* roles["nsfw_member"]
+
+### Persistence
+The bot will store any data placed into user_data and chat_data into a persistence file stored at /data/ottbot. This still needs to be controlled in order to remove any data after the user has been processed
 
 ## Contributing
 
